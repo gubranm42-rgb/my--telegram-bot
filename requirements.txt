@@ -1,4 +1,9 @@
 python-telegram-bot
 google-genai
 python-dotenv
+<<<<<<< HEAD
 pypdf
+=======
+pypdf
+groq
+>>>>>>> 55eabdef58c87cc63a7241ef52326a373d64678d
