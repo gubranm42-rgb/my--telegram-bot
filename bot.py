@@ -744,6 +744,13 @@ async def handle_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not document.file_name.lower().endswith(".pdf"):
         await update.message.reply_text("⚠️ أرسل ملف PDF فقط.")
         return
+    # حد أقصى لحجم الملف: 10 ميجابايت
+    if document.file_size and document.file_size > 10 * 1024 * 1024:
+        await update.message.reply_text(
+            "⚠️ الملف كبير جداً (أكثر من 10 ميجابايت)." + NL
+            + "💡 جرّب ملفاً أصغر."
+        )
+        return
 
     await context.bot.send_chat_action(
         chat_id=update.effective_chat.id, action=ChatAction.TYPING

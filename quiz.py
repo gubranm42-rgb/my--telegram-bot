@@ -66,8 +66,7 @@ def clean_json_response(raw):
 
 
 # ==================== بناء البرومبت ====================
-def build_quiz_prompt(text, num_questions, question_type, difficulty):
-
+def build_quiz_prompt(text, num_questions, question_type, difficulty, lang_instruction="الأسئلة بالعربية."):
     type_rule = {
         "mcq": "كل الأسئلة من نوع اختيار من متعدد (4 خيارات).",
         "tf": "كل الأسئلة من نوع صح أو خطأ.",
@@ -157,6 +156,7 @@ def build_quiz_prompt(text, num_questions, question_type, difficulty):
         + "- لا تضع حقولاً إضافية." + chr(10) + chr(10)+ "النص المطلوب منه الأسئلة:" + chr(10)
         + text + chr(10) + chr(10)
         + "JSON:"
+        + "لغة الأسئلة: " + lang_instruction + chr(10) + chr(10)
     )
     return prompt
 
@@ -195,7 +195,18 @@ def generate_quiz_from_text(client, model_name, text, num_questions=5,
             + chr(10) + text[step*3:step*3 + quarter]
     )
     print("تم أخذ عينة موزعة: " + str(len(text)) + " حرف")
-    prompt = build_quiz_prompt(text, num_questions, question_type, difficulty)
+    # كشف لغة النص
+    arabic_chars = sum(1 for c in text[:2000] if '\u0600' <= c <= '\u06FF')
+    is_arabic = arabic_chars > 50
+
+    if is_arabic:
+        lang_instruction = "الأسئلة بالعربية."
+    else:
+        lang_instruction = (
+            "الأسئلة باللغة الإنجليزية (كما هو النص). "
+            + "وأضف لكل سؤال ترجمة عربية بين قوسين بعد السؤال."
+        )
+    prompt = build_quiz_prompt(text, num_questions, question_type, difficulty, lang_instruction)
     print("طول الطلب: " + str(len(prompt)) + " حرف")
 
     import llm_router
